@@ -17,11 +17,14 @@ import java.util.*
 import android.content.pm.PackageManager
 import android.widget.FrameLayout
 import android.R.attr.data
+import android.R.attr.fragment
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
 import android.support.v4.app.FragmentActivity
 import java.io.FileNotFoundException
+import android.view.ViewGroup
+import android.content.Intent
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,37 +44,41 @@ class MainActivity : AppCompatActivity() {
 
     private fun initialize() {
         btnPhoto = findViewById(R.id.btnPhoto)
-        mCamera = getCameraInstance()
+//        mCamera = getCameraInstance()
+//
+//        // Create our Preview view and set it as the content of our activity.
+//        mPreview = CameraPreview(this, mCamera)
 
-        // Create our Preview view and set it as the content of our activity.
-        mPreview = CameraPreview(this, mCamera)
+
         val preview = findViewById(R.id.camera_preview) as FrameLayout
-        preview.addView(mPreview)
-
+//        preview.addView(mPreview)
+//        preview.addView(mPreview)
         btnPhoto.setOnClickListener {
-            checkCameraHardware(this)
-            mCamera?.takePicture({ }, { bytes, camera -> },
-                    { data, camera ->
-                        val pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE)
-                        if (pictureFile == null) {
-                            Log.d("Log.d", "Error creating media file, check storage permissions: ")
 
-                        }else{
-                            Log.d("Log.d", "media file not null")
-                        }
-
-                        try {
-                            val fos = FileOutputStream(pictureFile!!)
-                            fos.write(data)
-                            fos.close()
-                            Log.d("Log.d", "File write succesfully")
-                        } catch (e: FileNotFoundException) {
-                            Log.d("Log.d", "File not found: " + e.message)
-                        } catch (e: IOException) {
-                            Log.d("Log.d", "Error accessing file: " + e.message)
-                        }
-
-                    })
+            startCameraFromService()
+//            checkCameraHardware(this)
+//            mCamera?.takePicture({ }, { bytes, camera -> },
+//                    { data, camera ->
+//                        val pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE)
+//                        if (pictureFile == null) {
+//                            Log.d("Log.d", "Error creating media file, check storage permissions: ")
+//
+//                        } else {
+//                            Log.d("Log.d", "media file not null")
+//                        }
+//
+//                        try {
+//                            val fos = FileOutputStream(pictureFile!!)
+//                            fos.write(data)
+//                            fos.close()
+//                            Log.d("Log.d", "File write succesfully")
+//                        } catch (e: FileNotFoundException) {
+//                            Log.d("Log.d", "File not found: " + e.message)
+//                        } catch (e: IOException) {
+//                            Log.d("Log.d", "Error accessing file: " + e.message)
+//                        }
+//
+//                    })
         }
 
 
@@ -124,7 +131,8 @@ class MainActivity : AppCompatActivity() {
     fun getCameraInstance(): Camera? {
         var c: Camera? = null
         try {
-            c = Camera.open() // attempt to get a Camera instance
+            c = Camera.open(0)
+            // c = Camera.open() // attempt to get a Camera instance
         } catch (e: Exception) {
             // Camera is not available (in use or does not exist)
         }
@@ -143,6 +151,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun startCameraFromService() {
+        val front_translucent = Intent(application
+                .applicationContext, CamerService::class.java)
+        front_translucent.putExtra("Front_Request", false)
+        front_translucent.putExtra("Quality_Mode",
+                100) // camCapture.getQuality()
+        application.applicationContext.startService(
+                front_translucent)
+
+    }
 
     private fun makePhotos(count: Int) {
         var mCamera: Camera?

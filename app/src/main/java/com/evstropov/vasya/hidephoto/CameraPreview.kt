@@ -13,7 +13,6 @@ class CameraPreview(context: Context, private val mCamera: Camera?) : SurfaceVie
     private val mHolder: SurfaceHolder
 
     init {
-
         // Install a SurfaceHolder.Callback so we get notified when the
         // underlying surface is created and destroyed.
         mHolder = holder
